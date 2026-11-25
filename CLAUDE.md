@@ -20,7 +20,7 @@ Deploy = push to `main`; Pages serves the root. `index.html` loads `countries.js
 
 ## How the game works
 
-- Silhouette of a target country; **6 guesses**. Each guess row shows name, distance, a compass arrow, and "% close". Newest guess is shown first (so it stays above the phone keyboard).
+- Silhouette of a target country; **6 guesses**. Each guess row shows name, distance, a compass arrow (flat-map bearing, not great-circle), and "% close". Newest guess is shown first (so it stays above the phone keyboard).
 - Proximity % = `1 - distance/20000km`. Distance = haversine between **country centroids** (not borders).
 - **Daily** mode: deterministic. A fixed-seed shuffle (`mulberry32(20261124)`) of all countries, indexed by local-date day number mod N, so no repeats until the cycle completes. It does **not** match Worldle's daily answers. **Random** mode: unlimited.
 - Autocomplete input with aliases (USA, UK, Ivory Coast, Czech Republic, etc. — see `ALIAS` in index.html). Accent-insensitive.
@@ -70,7 +70,7 @@ No test suite. Verification so far was done with headless Chrome + Playwright (P
 
 ## Open items / next up (agreed with Alex)
 
-1. **Arrow direction for far-apart countries.** Currently the arrow is the true great-circle bearing, so Venezuela → China points ⬆️ (over the North Pole), which is disorienting. Options: **A** flat-map bearing — `dx = wrappedΔlon·cos(midLat)`, `dy = Δlat`, quantised to 8 directions, so Venezuela→China is ➡️ (my recommendation: distance stays true, arrow is for orientation); **B** hybrid — great-circle under ~8,000 km, flat-map beyond; **C** keep as is. Alex said he'd sleep on it — **ask which he chose before implementing.**
+1. ~~Arrow direction~~ **Done:** the arrow is now a flat-map (Mercator / rhumb-line) bearing, as the original Worldle did, so Venezuela → China is ➡️. Longitude difference is wrapped to ±180°, so the arrow points the shorter way around (Brazil → Japan is ⬅️ across the Pacific). Distance is still great-circle.
 2. **Territories as a game setting** (Alex agreed). Plan: a toggle in Settings that adds territories to the pool (default off = countries only). Needs: territory allow-list in `build-data.mjs` (Svalbard & Jan Mayen via `scripts/preview-territory-svalbard.mjs` — Norway polygons with centroid lat>73, plus Jan Mayen at lon<0, lat>70; Puerto Rico, Guam, Faroe Islands, etc.), a flag on each record (e.g. `t:1`), filter in the game for both Random and Daily (Daily order must not change when the toggle flips — use a separate shuffle for territories mode, and a separate `sil-day-` key), and accept territory names in autocomplete only when enabled. Also the autocomplete should list territories when enabled.
 3. Possible polish: hint button (continent / first letter), colour-blind-safe proximity indicators, installable PWA/home-screen icon.
 

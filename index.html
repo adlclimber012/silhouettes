@@ -149,10 +149,14 @@ function dist(a,b){
   var h=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)*Math.sin(dLon/2);
   return 2*EARTH*Math.asin(Math.min(1,Math.sqrt(h)));
 }
+/* Arrow = straight line on a flat (Mercator) world map, i.e. a rhumb-line bearing.
+   Not the great-circle route, which points over the poles for far-apart countries
+   (Venezuela -> China would be "north"). Distance stays the true great-circle distance. */
 function bearing(a,b){
-  var y=Math.sin(toRad(b.lon-a.lon))*Math.cos(toRad(b.lat));
-  var x=Math.cos(toRad(a.lat))*Math.sin(toRad(b.lat))-Math.sin(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.cos(toRad(b.lon-a.lon));
-  return (Math.atan2(y,x)*180/Math.PI+360)%360;
+  var dLon=b.lon-a.lon;
+  if(dLon>180)dLon-=360;else if(dLon<-180)dLon+=360;
+  var merc=function(lat){return Math.log(Math.tan(Math.PI/4+toRad(lat)/2))};
+  return (Math.atan2(toRad(dLon),merc(b.lat)-merc(a.lat))*180/Math.PI+360)%360;
 }
 var ARROWS=['⬆️','↗️','➡️','↘️','⬇️','↙️','⬅️','↖️'];
 function arrow(a,b){return ARROWS[Math.round(bearing(a,b)/45)%8]}

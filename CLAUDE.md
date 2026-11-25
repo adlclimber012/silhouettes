@@ -56,6 +56,7 @@ The keyboard covers the bottom ~40% of the screen, and the visible area above it
 4. The map is deliberately **one constant size in every state** (idle, typing, won): `height:min(31vh,240px)`, aspect 3:2. The user noticed and disliked size changes between states. Header is a single compact row (title + Daily/Random tabs + stats/settings) to save vertical space; the tabs must stay visible while typing so you can get back to Daily.
 5. The suggestion list's `max-height` is computed in `drawSugg()` from `min(visualViewport.height, innerHeight*0.6) - input bottom`, because the iOS webview does not always shrink the viewport for the keyboard.
 6. Input font-size must stay ≥16px (prevents iOS zoom on focus).
+7. **No iOS AutoFill bar on the guess box.** Safari ignores `autocomplete="off"` and guesses "address field" from nearby words, so: the input is **not inside a `<form>`** (Enter and the Guess button call `submit()` directly), and its placeholder, name and label avoid address words like "country", "region", "territory", "state" and "city". Keep it that way when editing the input.
 
 ## Testing
 

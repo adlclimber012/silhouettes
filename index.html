@@ -37,7 +37,7 @@ header{margin-bottom:10px}
 .row .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:-2px}
 .row .bar i{display:block;height:100%;background:var(--accent)}
 .entry{position:relative}
-.entry form{display:flex;gap:8px}
+.entry .frm{display:flex;gap:8px}
 input[type=text]{flex:1;min-width:0;font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
 input[type=text]:focus{outline:2px solid var(--accent);border-color:transparent}
 .sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line);border-radius:10px;z-index:5;box-shadow:0 8px 24px #0008;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
@@ -89,10 +89,10 @@ label.opt{display:flex;justify-content:space-between;align-items:center;padding:
   <div class="shape"><svg id="svg" viewBox="0 0 300 200" role="img" aria-label="Country silhouette"><path id="shp" d=""/></svg></div>
   <div class="entry" id="entry">
     <div class="sugg hidden" id="sugg" role="listbox"></div>
-    <form id="form" autocomplete="off">
-      <input type="text" id="inp" placeholder="Country, region or territory…" aria-label="Your guess" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <button class="primary" id="go" type="submit">Guess</button>
-    </form>
+    <div class="frm" id="frm">
+      <input type="text" id="inp" name="sil-guess" placeholder="Type your guess…" aria-label="Your guess" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" data-1p-ignore data-lpignore="true">
+      <button class="primary" id="go" type="button">Guess</button>
+    </div>
   </div>
   <div class="msg" id="msg" aria-live="polite"></div>
   <div class="rows" id="rows"></div>
@@ -361,12 +361,13 @@ function wire(){
     if(e.key==='ArrowDown'&&matches.length){e.preventDefault();sel=(sel+1)%matches.length;drawSugg()}
     else if(e.key==='ArrowUp'&&matches.length){e.preventDefault();sel=(sel-1+matches.length)%matches.length;drawSugg()}
     else if(e.key==='Escape')hideSugg();
+    else if(e.key==='Enter'){e.preventDefault();submit()}
   });
   function top(){window.scrollTo(0,0)}
   $('inp').addEventListener('focus',function(){document.body.classList.add('typing');top();setTimeout(top,60);setTimeout(top,300)});
   $('inp').addEventListener('blur',function(){setTimeout(function(){hideSugg();if(document.activeElement!==$('inp')){document.body.classList.remove('typing');top()}},120)});
   if(window.visualViewport){var vv=function(){if(document.body.classList.contains('typing'))top()};window.visualViewport.addEventListener('scroll',vv);window.visualViewport.addEventListener('resize',vv)}
-  $('form').addEventListener('submit',function(e){e.preventDefault();submit()});
+  $('go').addEventListener('click',function(){submit()});
   $('tabDaily').addEventListener('click',startDaily);
   $('tabRandom').addEventListener('click',startRandom);
   $('btnNext').addEventListener('click',startRandom);
